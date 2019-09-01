@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/SplashScreen.unity
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/IntroCinematic.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/Mw-1.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/Mw-2.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/Mw-3.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/Mw-4.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/Mw-5.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/Mw-6.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/Mw-7.unity
+  - enabled: 1
+    path: Assets/Scenes/MilkyWay/Mw-8.unity
+  - enabled: 1
+    path: Assets/Scenes/Andromeda/Andromeda-1.unity
+  - enabled: 1
+    path: Assets/Scenes/Andromeda/Andromeda-2.unity
+  - enabled: 1
+    path: Assets/Scenes/Andromeda/Andromeda-3.unity
+  - enabled: 1
+    path: Assets/Scenes/Andromeda/Andromeda-4.unity
+  - enabled: 1
+    path: Assets/Scenes/Andromeda/Andromeda-5.unity
+  - enabled: 1
+    path: Assets/Scenes/Andromeda/Andromeda-6.unity
+  - enabled: 1
+    path: Assets/Scenes/Andromeda/Andromeda-7.unity
+  - enabled: 1
+    path: Assets/Scenes/Andromeda/Andromeda-8.unity
+  - enabled: 1
+    path: Assets/Scenes/MoreSoon.unity
+  - enabled: 1
+    path: Assets/Scenes/Cigar/Cigar-1.unity
+  - enabled: 1
+    path: Assets/Scenes/Cigar/Cigar-2.unity
+  - enabled: 1
+    path: Assets/Scenes/Cigar/Cigar-3.unity
+  - enabled: 1
+    path: Assets/Scenes/Cigar/Cigar-4.unity
+  - enabled: 1
+    path: Assets/Scenes/Cigar/Cigar-5.unity
+  - enabled: 1
+    path: Assets/Scenes/Cigar/Cigar-6.unity
+  - enabled: 1
+    path: Assets/Scenes/Cigar/Cigar-7.unity
+  - enabled: 1
+    path: Assets/Scenes/Cigar/Cigar-8.unity
+  - enabled: 1
+    path: Assets/Scenes/Pinwheel/Pwl-1.unity
+  - enabled: 1
+    path: Assets/Scenes/Pinwheel/Pwl-2.unity
+  - enabled: 1
+    path: Assets/Scenes/Pinwheel/Pwl-3.unity
+  - enabled: 1
+    path: Assets/Scenes/Pinwheel/Pwl-4.unity
+  - enabled: 1
+    path: Assets/Scenes/Pinwheel/Pwl-5.unity
+  - enabled: 1
+    path: Assets/Scenes/Pinwheel/Pwl-6.unity
+  - enabled: 1
+    path: Assets/Scenes/Pinwheel/Pwl-7.unity
+  - enabled: 1
+    path: Assets/Scenes/Pinwheel/Pwl-8.unity

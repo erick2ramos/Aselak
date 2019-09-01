@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 3917e74ee24d0064a8e6d816b7bbe8ac
+timeCreated: 1490189185
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 2
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Gemina Condensed
+  fontNames:
+  - Gemina Condensed
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,302 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a83ce2a6104f134489322b2b42b34c0, type: 3}
+  m_Name: LvlData
+  m_EditorClassIdentifier: 
+  levels:
+  - id: 1
+    name: Milky Way
+    sceneLabel: Mw
+    playable: 1
+    nextLevelId: 2
+    stages:
+    - id: 1
+      name: Sector 1
+      ownerLevelId: 1
+      nextStageId: 2
+      sceneLabel: 1
+      playable: 1
+      maxScore: 3
+      cinematicSceneLabel: IntroCinematic
+    - id: 2
+      name: Sector 2
+      ownerLevelId: 1
+      nextStageId: 3
+      sceneLabel: 2
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 3
+      name: Sector 3
+      ownerLevelId: 1
+      nextStageId: 4
+      sceneLabel: 3
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 4
+      name: Sector 4
+      ownerLevelId: 1
+      nextStageId: 5
+      sceneLabel: 4
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 5
+      name: Sector 5
+      ownerLevelId: 1
+      nextStageId: 6
+      sceneLabel: 5
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 6
+      name: Sector 6
+      ownerLevelId: 1
+      nextStageId: 7
+      sceneLabel: 6
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 7
+      name: Sector 7
+      ownerLevelId: 1
+      nextStageId: 8
+      sceneLabel: 7
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 8
+      name: Sector 8
+      ownerLevelId: 1
+      nextStageId: -1
+      sceneLabel: 8
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+  - id: 2
+    name: Andromeda
+    sceneLabel: Andromeda
+    playable: 0
+    nextLevelId: 3
+    stages:
+    - id: 9
+      name: Sector 1
+      ownerLevelId: 2
+      nextStageId: 10
+      sceneLabel: 1
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 10
+      name: Sector 2
+      ownerLevelId: 2
+      nextStageId: 11
+      sceneLabel: 2
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 11
+      name: Sector 3
+      ownerLevelId: 2
+      nextStageId: 12
+      sceneLabel: 3
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 12
+      name: Sector 4
+      ownerLevelId: 2
+      nextStageId: 13
+      sceneLabel: 4
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 13
+      name: Sector 5
+      ownerLevelId: 2
+      nextStageId: 14
+      sceneLabel: 5
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 14
+      name: Sector 6
+      ownerLevelId: 2
+      nextStageId: 15
+      sceneLabel: 6
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 15
+      name: Sector 7
+      ownerLevelId: 2
+      nextStageId: 16
+      sceneLabel: 7
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 16
+      name: Sector 8
+      ownerLevelId: 2
+      nextStageId: -1
+      sceneLabel: 8
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+  - id: 3
+    name: Cigar
+    sceneLabel: Cigar
+    playable: 0
+    nextLevelId: 4
+    stages:
+    - id: 17
+      name: Sector 1
+      ownerLevelId: 3
+      nextStageId: 18
+      sceneLabel: 1
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 18
+      name: Sector 2
+      ownerLevelId: 3
+      nextStageId: 19
+      sceneLabel: 2
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 19
+      name: Sector 3
+      ownerLevelId: 3
+      nextStageId: 20
+      sceneLabel: 3
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 20
+      name: Sector 4
+      ownerLevelId: 3
+      nextStageId: 21
+      sceneLabel: 4
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 21
+      name: Sector 5
+      ownerLevelId: 3
+      nextStageId: 22
+      sceneLabel: 5
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 22
+      name: Sector 6
+      ownerLevelId: 3
+      nextStageId: 23
+      sceneLabel: 6
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 23
+      name: Sector 7
+      ownerLevelId: 3
+      nextStageId: 24
+      sceneLabel: 7
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 24
+      name: Sector 8
+      ownerLevelId: 3
+      nextStageId: -1
+      sceneLabel: 8
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+  - id: 4
+    name: Pinwheel
+    sceneLabel: Pwl
+    playable: 0
+    nextLevelId: 5
+    stages:
+    - id: 25
+      name: Sector 1
+      ownerLevelId: 4
+      nextStageId: 26
+      sceneLabel: 1
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 26
+      name: Sector 2
+      ownerLevelId: 4
+      nextStageId: 27
+      sceneLabel: 2
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 27
+      name: Sector 3
+      ownerLevelId: 4
+      nextStageId: 28
+      sceneLabel: 3
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 28
+      name: Sector 4
+      ownerLevelId: 4
+      nextStageId: 29
+      sceneLabel: 4
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 29
+      name: Sector 5
+      ownerLevelId: 4
+      nextStageId: 30
+      sceneLabel: 5
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 30
+      name: Sector 6
+      ownerLevelId: 4
+      nextStageId: 31
+      sceneLabel: 6
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 31
+      name: Sector 7
+      ownerLevelId: 4
+      nextStageId: 32
+      sceneLabel: 7
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 32
+      name: Sector 8
+      ownerLevelId: 4
+      nextStageId: 33
+      sceneLabel: 8
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: 
+    - id: 33
+      name: Soon
+      ownerLevelId: 3
+      nextStageId: -1
+      sceneLabel: 9
+      playable: 0
+      maxScore: 3
+      cinematicSceneLabel: MoreSoon
