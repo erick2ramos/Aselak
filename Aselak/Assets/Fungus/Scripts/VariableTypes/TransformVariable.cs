@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -13,7 +13,8 @@ namespace Fungus
     [AddComponentMenu("")]
     [System.Serializable]
     public class TransformVariable : VariableBase<Transform>
-    {}
+    {
+    }
 
     /// <summary>
     /// Container for a Transform variable reference or constant value.
@@ -49,7 +50,7 @@ namespace Fungus
         {
             if (transformRef == null)
             {
-                return transformVal.ToString();
+                return transformVal != null ? transformVal.ToString() : "Null";
             }
             else
             {

@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -13,7 +13,41 @@ namespace Fungus
     [AddComponentMenu("")]
     [System.Serializable]
     public class Vector3Variable : VariableBase<Vector3>
-    {}
+    {
+        public override bool IsArithmeticSupported(SetOperator setOperator)
+        {
+            return true;
+        }
+
+        public override void Apply(SetOperator setOperator, Vector3 value)
+        {
+            Vector3 local = Value;
+
+            switch (setOperator)
+            {
+            case SetOperator.Negate:
+                Value = Value * -1;
+                break;
+            case SetOperator.Add:
+                Value += value;
+                break;
+            case SetOperator.Subtract:
+                Value -= value;
+                break;
+            case SetOperator.Multiply:
+                local.Scale(value);
+                Value = local;
+                break;
+            case SetOperator.Divide:
+                local.Scale(new Vector3(1.0f / value.x, 1.0f / value.y, 1.0f / value.z));
+                Value = local;
+                break;
+            default:
+                base.Apply(setOperator, value);
+                break;
+            }
+        }
+    }
 
     /// <summary>
     /// Container for a Vector3 variable reference or constant value.

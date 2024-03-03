@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -14,9 +14,10 @@ namespace Fungus
                  "Menu", 
                  "Displays a button in a multiple choice menu")]
     [AddComponentMenu("")]
-    public class Menu : Command, ILocalizable
+    public class Menu : Command, ILocalizable, IBlockCaller
     {
         [Tooltip("Text to display on the menu button")]
+        [TextArea()]
         [SerializeField] protected string text = "Option Text";
 
         [Tooltip("Notes about the option text for other authors, localization, etc.")]
@@ -35,6 +36,9 @@ namespace Fungus
         [Tooltip("A custom Menu Dialog to use to display this menu. All subsequent Menu commands will use this dialog.")]
         [SerializeField] protected MenuDialog setMenuDialog;
 
+        [Tooltip("If true, this option will be passed to the Menu Dialogue but marked as hidden, this can be used to hide options while maintaining a Menu Shuffle.")]
+        [SerializeField] protected BooleanData hideThisOption = new BooleanData(false);
+
         #region Public members
 
         public MenuDialog SetMenuDialog  { get { return setMenuDialog; } set { setMenuDialog = value; } }
@@ -47,11 +51,9 @@ namespace Fungus
                 MenuDialog.ActiveMenuDialog = setMenuDialog;
             }
 
-            bool hideOption = (hideIfVisited && targetBlock != null && targetBlock.GetExecutionCount() > 0);
+            bool hideOption = (hideIfVisited && targetBlock != null && targetBlock.GetExecutionCount() > 0) || hideThisOption.Value;
 
-            if (!hideOption)
-            {
-                var menuDialog = MenuDialog.GetMenuDialog();
+            var menuDialog = MenuDialog.GetMenuDialog();
                 if (menuDialog != null)
                 {
                     menuDialog.SetActive(true);
@@ -59,10 +61,9 @@ namespace Fungus
                     var flowchart = GetFlowchart();
                     string displayText = flowchart.SubstituteVariables(text);
 
-                    menuDialog.AddOption(displayText, interactable, targetBlock);
+                    menuDialog.AddOption(displayText, interactable, hideOption, targetBlock);
                 }
-            }
-
+            
             Continue();
         }
 
@@ -94,6 +95,17 @@ namespace Fungus
             return new Color32(184, 210, 235, 255);
         }
 
+        public override bool HasReference(Variable variable)
+        {
+            return interactable.booleanRef == variable || hideThisOption.booleanRef == variable ||
+                base.HasReference(variable);
+        }
+
+        public bool MayCallBlock(Block block)
+        {
+            return block == targetBlock;
+        }
+
         #endregion
 
         #region ILocalizable implementation
@@ -120,5 +132,18 @@ namespace Fungus
         }
 
         #endregion
+
+        #region Editor caches
+#if UNITY_EDITOR
+        protected override void RefreshVariableCache()
+        {
+            base.RefreshVariableCache();
+
+            var f = GetFlowchart();
+
+            f.DetermineSubstituteVariables(text, referencedVariables);
+        }
+#endif
+        #endregion Editor caches
     }
 }

@@ -1,4 +1,4 @@
-﻿// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+﻿// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using System.Collections.Generic;
@@ -65,7 +65,13 @@ namespace Fungus
         /// <summary> audiopause=Sound </summary>
         AudioPause,
         /// <summary> audiostop=Sound </summary>
-        AudioStop
+        AudioStop,
+        /// <summary> wvo </summary>
+        WaitForVoiceOver,
+        /// <summary> link start </summary>
+        LinkStart,
+        /// <summary> link end </summary>
+        LinkEnd,
     }
 
     /// <summary>

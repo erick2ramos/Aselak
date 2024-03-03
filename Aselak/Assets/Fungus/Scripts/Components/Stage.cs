@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace Fungus
 {
     /// <summary>
-    /// Define a set of screen positions where character sprites can be displayed.
+    /// Define a set of screen positions where character sprites can be displayed and controls portraits.
     /// </summary>
     [ExecuteInEditMode]
     public class Stage : PortraitController
@@ -19,6 +19,9 @@ namespace Fungus
 
         [Tooltip("Dim portraits when a character is not speaking.")]
         [SerializeField] protected bool dimPortraits;
+
+        [Tooltip("Choose a dimColor")]
+        [SerializeField] protected Color dimColor =new Color(0.5f, 0.5f, 0.5f, 1f);
 
         [Tooltip("Duration for fading character portraits in / out.")]
         [SerializeField] protected float fadeDuration = 0.5f;
@@ -95,6 +98,11 @@ namespace Fungus
         /// Dim portraits when a character is not speaking.
         /// </summary>
         public virtual bool DimPortraits { get { return dimPortraits; } set { dimPortraits = value; } }
+
+        /// <summary>
+        /// Choose a dimColor.
+        /// </summary>
+        public virtual Color DimColor { get { return dimColor; } set { dimColor = value; } }
 
         /// <summary>
         /// Duration for fading character portraits in / out.

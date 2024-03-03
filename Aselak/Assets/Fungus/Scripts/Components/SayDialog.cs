@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -25,10 +25,44 @@ namespace Fungus
 
         [Tooltip("The name text UI object")]
         [SerializeField] protected Text nameText;
+        [Tooltip("TextAdapter will search for appropriate output on this GameObject if nameText is null")]
+        [SerializeField] protected GameObject nameTextGO;
+        protected TextAdapter nameTextAdapter = new TextAdapter();
+        public virtual string NameText
+        {
+            get
+            {
+                return nameTextAdapter.Text;
+            }
+            set
+            {
+                nameTextAdapter.Text = value;
+            }
+        }
 
         [Tooltip("The story text UI object")]
         [SerializeField] protected Text storyText;
-        public virtual Text StoryText { get { return storyText; } }
+        [Tooltip("TextAdapter will search for appropriate output on this GameObject if storyText is null")]
+        [SerializeField] protected GameObject storyTextGO;
+        protected TextAdapter storyTextAdapter = new TextAdapter();
+        public virtual string StoryText
+        {
+            get
+            {
+                return storyTextAdapter.Text;
+            }
+            set
+            {
+                storyTextAdapter.Text = value;
+            }
+        }
+        public virtual RectTransform StoryTextRectTrans
+        {
+            get
+            {
+                return storyText != null ? storyText.rectTransform : storyTextGO.GetComponent<RectTransform>();
+            }
+        }
 
         [Tooltip("The character UI object")]
         [SerializeField] protected Image characterImage;
@@ -61,20 +95,23 @@ namespace Fungus
 		// Cache active Say Dialogs to avoid expensive scene search
 		protected static List<SayDialog> activeSayDialogs = new List<SayDialog>();
 
-		protected void Awake()
+		protected virtual void Awake()
 		{
 			if (!activeSayDialogs.Contains(this))
 			{
 				activeSayDialogs.Add(this);
 			}
-		}
 
-		protected void OnDestroy()
+            nameTextAdapter.InitFromGameObject(nameText != null ? nameText.gameObject : nameTextGO);
+            storyTextAdapter.InitFromGameObject(storyText != null ? storyText.gameObject : storyTextGO);
+        }
+
+		protected virtual void OnDestroy()
 		{
 			activeSayDialogs.Remove(this);
 		}
 			
-		protected Writer GetWriter()
+		protected virtual Writer GetWriter()
         {
             if (writer != null)
             {
@@ -90,7 +127,7 @@ namespace Fungus
             return writer;
         }
 
-        protected CanvasGroup GetCanvasGroup()
+        protected virtual CanvasGroup GetCanvasGroup()
         {
             if (canvasGroup != null)
             {
@@ -106,7 +143,7 @@ namespace Fungus
             return canvasGroup;
         }
 
-        protected WriterAudio GetWriterAudio()
+        protected virtual WriterAudio GetWriterAudio()
         {
             if (writerAudio != null)
             {
@@ -122,7 +159,7 @@ namespace Fungus
             return writerAudio;
         }
 
-        protected void Start()
+        protected virtual void Start()
         {
             // Dialog always starts invisible, will be faded in when writing starts
             GetCanvasGroup().alpha = 0f;
@@ -138,7 +175,7 @@ namespace Fungus
             // Start method of another component, so check that no image has been set yet.
             // Same for nameText.
 
-            if (nameText != null && nameText.text == "")
+            if (NameText == "")
             {
                 SetCharacterName("", Color.white);
             }
@@ -147,8 +184,6 @@ namespace Fungus
                 // Character image is hidden by default.
                 SetCharacterImage(null);
             }
-
-            stringSubstituter.CacheSubstitutionHandlers();
         }
 
         protected virtual void LateUpdate()
@@ -200,13 +235,12 @@ namespace Fungus
 
         protected virtual void ClearStoryText()
         {
-            if (storyText != null)
-            {
-                storyText.text = "";
-            }
+            StoryText = "";
         }
 
         #region Public members
+
+		public Character SpeakingCharacter { get { return speakingCharacter; } }
 
         /// <summary>
         /// Currently active Say Dialog used to display Say text
@@ -299,9 +333,9 @@ namespace Fungus
                 {
                     characterImage.gameObject.SetActive(false);
                 }
-                if (nameText != null)
+                if (NameText != null)
                 {
-                    nameText.text = "";
+                    NameText = "";
                 }
                 speakingCharacter = null;
             }
@@ -360,7 +394,7 @@ namespace Fungus
 
             if (image != null)
             {
-                characterImage.sprite = image;
+                characterImage.overrideSprite = image;
                 characterImage.gameObject.SetActive(true);
                 currentCharacterImage = image;
             }
@@ -370,7 +404,7 @@ namespace Fungus
 
                 if (startStoryTextWidth != 0)
                 {
-                    storyText.rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 
+                    StoryTextRectTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 
                         startStoryTextInset, 
                         startStoryTextWidth);
                 }
@@ -378,25 +412,25 @@ namespace Fungus
 
             // Adjust story text box to not overlap image rect
             if (fitTextWithImage && 
-                storyText != null &&
+                StoryText != null &&
                 characterImage.gameObject.activeSelf)
             {
                 if (Mathf.Approximately(startStoryTextWidth, 0f))
                 {
-                    startStoryTextWidth = storyText.rectTransform.rect.width;
-                    startStoryTextInset = storyText.rectTransform.offsetMin.x; 
+                    startStoryTextWidth = StoryTextRectTrans.rect.width;
+                    startStoryTextInset = StoryTextRectTrans.offsetMin.x; 
                 }
 
                 // Clamp story text to left or right depending on relative position of the character image
-                if (storyText.rectTransform.position.x < characterImage.rectTransform.position.x)
+                if (StoryTextRectTrans.position.x < characterImage.rectTransform.position.x)
                 {
-                    storyText.rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 
+                    StoryTextRectTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 
                         startStoryTextInset, 
                         startStoryTextWidth - characterImage.rectTransform.rect.width);
                 }
                 else
                 {
-                    storyText.rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, 
+                    StoryTextRectTrans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, 
                         startStoryTextInset, 
                         startStoryTextWidth - characterImage.rectTransform.rect.width);
                 }
@@ -409,11 +443,11 @@ namespace Fungus
         /// </summary>
         public virtual void SetCharacterName(string name, Color color)
         {
-            if (nameText != null)
+            if (NameText != null)
             {
                 var subbedName = stringSubstituter.SubstituteStrings(name);
-                nameText.text = subbedName;
-                nameText.color = color;
+                NameText = subbedName;
+                nameTextAdapter.SetTextColor(color);
             }
         }
 
@@ -427,9 +461,9 @@ namespace Fungus
         /// <param name="stopVoiceover">Stop any existing voiceover audio before writing starts.</param>
         /// <param name="voiceOverClip">Voice over audio clip to play.</param>
         /// <param name="onComplete">Callback to execute when writing and player input have finished.</param>
-        public virtual void Say(string text, bool clearPrevious, bool waitForInput, bool fadeWhenDone, bool stopVoiceover, AudioClip voiceOverClip, Action onComplete)
+        public virtual void Say(string text, bool clearPrevious, bool waitForInput, bool fadeWhenDone, bool stopVoiceover, bool waitForVO, AudioClip voiceOverClip, Action onComplete)
         {
-            StartCoroutine(DoSay(text, clearPrevious, waitForInput, fadeWhenDone, stopVoiceover, voiceOverClip, onComplete));
+            StartCoroutine(DoSay(text, clearPrevious, waitForInput, fadeWhenDone, stopVoiceover, waitForVO, voiceOverClip, onComplete));
         }
 
         /// <summary>
@@ -442,7 +476,7 @@ namespace Fungus
         /// <param name="stopVoiceover">Stop any existing voiceover audio before writing starts.</param>
         /// <param name="voiceOverClip">Voice over audio clip to play.</param>
         /// <param name="onComplete">Callback to execute when writing and player input have finished.</param>
-        public virtual IEnumerator DoSay(string text, bool clearPrevious, bool waitForInput, bool fadeWhenDone, bool stopVoiceover, AudioClip voiceOverClip, Action onComplete)
+        public virtual IEnumerator DoSay(string text, bool clearPrevious, bool waitForInput, bool fadeWhenDone, bool stopVoiceover, bool waitForVO, AudioClip voiceOverClip, Action onComplete)
         {
             var writer = GetWriter();
 
@@ -483,13 +517,15 @@ namespace Fungus
                 soundEffectClip = speakingCharacter.SoundEffect;
             }
 
-            yield return StartCoroutine(writer.Write(text, clearPrevious, waitForInput, stopVoiceover, soundEffectClip, onComplete));
+            writer.AttachedWriterAudio = writerAudio;
+
+            yield return StartCoroutine(writer.Write(text, clearPrevious, waitForInput, stopVoiceover, waitForVO, soundEffectClip, onComplete));
         }
 
         /// <summary>
         /// Tell the Say Dialog to fade out once writing and player input have finished.
         /// </summary>
-        public virtual bool FadeWhenDone { set { fadeWhenDone = value; } }
+        public virtual bool FadeWhenDone { get {return fadeWhenDone; } set { fadeWhenDone = value; } }
 
         /// <summary>
         /// Stop the Say Dialog while its writing text.

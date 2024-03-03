@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 // Adapted from the Unity Test Tools project (MIT license)
@@ -37,9 +37,16 @@ namespace Fungus
             var executeHandler = (ExecuteHandler)target;
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel(new GUIContent("On Event"));
+#if UNITY_2017_3_OR_NEWER
+            executeHandler.ExecuteMethods = (ExecuteMethod)EditorGUILayout.EnumFlagsField(executeHandler.ExecuteMethods,
+                                                                                         EditorStyles.popup,
+                                                                                         GUILayout.ExpandWidth(false));
+#else
             executeHandler.ExecuteMethods = (ExecuteMethod)EditorGUILayout.EnumMaskField(executeHandler.ExecuteMethods,
                                                                                          EditorStyles.popup,
                                                                                          GUILayout.ExpandWidth(false));
+#endif
+
             EditorGUILayout.EndHorizontal();
 
             if (executeHandler.IsExecuteMethodSelected(ExecuteMethod.AfterPeriodOfTime))

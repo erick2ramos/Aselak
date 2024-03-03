@@ -1,9 +1,8 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEditor;
 using UnityEngine;
-using Rotorz.ReorderableList;
 
 namespace Fungus.EditorUtils
 {
@@ -34,6 +33,7 @@ namespace Fungus.EditorUtils
             serializedObject.Update();
 
             Character t = target as Character;
+            EditorGUI.BeginChangeCheck();
 
             EditorGUILayout.PropertyField(nameTextProp, new GUIContent("Name Text", "Name of the character display in the dialog"));
             EditorGUILayout.PropertyField(nameColorProp, new GUIContent("Name Color", "Color of name text display in the dialog"));
@@ -60,8 +60,7 @@ namespace Fungus.EditorUtils
                     GUI.DrawTexture(previewRect,characterTexture,ScaleMode.ScaleToFit,true,aspect);
             }
 
-            ReorderableListGUI.Title(new GUIContent("Portraits", "Character image sprites to display in the dialog"));
-            ReorderableListGUI.ListField(portraitsProp);
+            EditorGUILayout.PropertyField(portraitsProp, new GUIContent("Portraits", "Character image sprites to display in the dialog"), true);
 
             EditorGUILayout.HelpBox("All portrait images should use the exact same resolution to avoid positioning and tiling issues.", MessageType.Info);
 
@@ -77,7 +76,8 @@ namespace Fungus.EditorUtils
 
             EditorGUILayout.Separator();
 
-            EditorUtility.SetDirty(t);
+            if(EditorGUI.EndChangeCheck())
+                EditorUtility.SetDirty(t);
 
             serializedObject.ApplyModifiedProperties();
         }

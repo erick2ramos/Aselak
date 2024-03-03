@@ -1,6 +1,378 @@
 Changelog {#changelog}
 =========
+
+Unreleased
+======
+
+
+v3.13.4
+======
+
+## Fixed
+
+ - Set actions on Property commands targeting structs now save changes. Previously the target variable was not being copied back to the internal struct, causing changes to be discarded. Impacts the following Property Commands, Color, Matrix, Quaternion, Vector2, Vector3, Vector4.
+ - Writer with 0 speed and TMPro text correctly writes at infinite speed, previously was infinite loop.
+ - Collection Contains* commands now actually show the field to store boolean result.
+ - Writer with TMPro text now correctly calls NotifyGlyph and less susceptible to nested rich text tag confusion. 
+
+## Changed
+
+ - Conversation System finding character by name now uses an exact match with fallback to previous StartsWith. Thanks to hsandt.
+ - Flowchart Window labels no longer forced white, to better accomidate dark theme as of Unity 2019.4.8
+
+
+v3.13.3
+======
+
+## Fixed
+
+ - View Gizmo Drawer specifies type of View, no longer tries to run for every object in scene.
+ - TMProLinkAnim dictionary errors caused by duplicate entries when Domain Reload is disabled, Thanks to yano.
+ - Divide Equal now uses Unicode characters in place of ASCII slash in menus, so it shows correctly.
+
+v3.13.2
+======
+
+## Fixed
+
+- Restore string VariableSubstitution in use of AnyVariableDataPair, found in SetVariable and VariableCondition (#841)
+- Float variable comparison, typo causing comparison to self instead of rhs(#836)
+
+v3.13.1
+======
+
+## Fixed
+
+- Build error in JsonChecker caused by missing asmdef in newer Unity versions. (#833)
+
+v3.13.0
+======
+
+## Added
+
+- Conditional Commands now support multiple comparisons as a chain of && or ||. Thanks to preda2or, and AcademyOfF
+- IWriterListener OnAllWorldsWritten fires when there are no words left to be written but writer may still have pending waits
+- Entry based NarrativeLog alternate. Thanks to cg-tespy
+- Option to grid snap blocks in the FlowchartWindow.
+- TMPro Text animation via link text.
+- Fungus Collection, varaibles, default types, and commands.
+- Github Issue and PR templates.
+
+## Fixed
+
+- Portrait image shown as white when cycled through rapidly.
+- Flowchart Window Search box steals focus
+- Mushroom icon placement incorrect on some versions of Unity. Thanks to TonyJeffree
+- Text and Background colour readability across Unity Versions and Pro skin. Thanks to DesperateHouseDev
+- VariableData indents incorrect.
+- Fix reshow of hidden portrait in Conversation. Thanks to jusw85
+- FlowchartWindow search pop not showing on newer Unity versions.
+- VS Solution file fix for Unity 2019.3.12
+- Inspector DeleteSave button now deletes now more aware of target platform.
+- Fungus VariableData single and mutliline variable drawing in more recent Unity versions.
+- Possible null ref in Conversation editor during variable match check
+- Block connections not drawing if origin block is not drawn.
+
+## Changed
+
+- Portraits are now all cached when requested under their own gameobjects and toggle active.
+- Fungus Docs moved to github wiki
+- JSONObject lib updated to newer version. Thanks to qrostar.
+- CameraManager and View now use Tween types.
+- Dragable EventHandlers now support an array of target dragables. Thanks to SarveshBajaj
+- Flowchart GetVariables by type. Thanks to cg-tespy
+- A null FungusVariables will now report their string value as Null instead of an empty string.
+- Develop updated to Unity 2019.3.13
+- Demo scenes rebuilt in minimum supported Unity version.
+- Block selector now orders blocks by name.
+- Block search now supports partial matches.
+- Update to c#4
+- Updates to Contributing, Code of Conduct.
+- Menu command has a button to add a block for it to target.
+- Character selector now sorts names.
+- Portrait selector now sorts names.
+- Update header license
+- Writer uses InvariantCulture when parsing floats to avoid unexpected behaviour under changing system cultures.
+
+v3.12.0
+======
+
+## Added
+
+- Search should search commands, not just block names (#775). Thanks to AcademyOfF
+- Debug additions (#777) righclicking context menus additions and improvements on commands, blocks, and variables
+- BlockCallers can be seen within the block inspector
+- Variable referencers can be seen logged to the console
+- Added a custom script importer for lua files. Thanks to Matthew Barnes
+- Added Asmdefs
+- Fungus Editor Prefs button to locate FungusEditorResources and changelog
+
+## Fixed
+
+- Defines and fallbacks for 2017 and 2018 (#781)
+- CommandListAdapter sync command selection bidirectionally with selection in underlying reorderablelist
+- Command text with 'Error:' shows red
+- HighSpeedWriterFix; corrected rate of characters and more than 1 character per frame issue.
+- FilterBlocks during SceneChange, now refresh as expected
+- Command and Variables outside of Fungus assembly now locate
+- Character selection preventing edits bug
+- Restore Edit Mode Tests
+
+## Changed
+
+- FungusManager.cs Use "double checked locking" algorithm to implement the singleton for "FungusManager" class, which can improve performance. Thanks to AndyHan1001 
+- CommandSearchHeightFallback on some versions of Unity editor inspector height is not returning correctly so we make an educated guess if it seems unreliable
+- More elaborated use of text in TMPro demo
+- Block Inspector forces type at creation. Thanks to Michaelwolf95
+- Warning when requesting menu elements that are not avaialble, such as more menu items that you have created.
+- Fungus Docs can now generate in github markdown format
+
+
+v3.11.5 {#v3.11.5}
+======
+
+## Fixed
+
+- Mushroom icon for the inspector moved in 2019 as to not overlap the new visibility toggle Unity has added. #745
+- FlowchartWindow MutliSelect now more strictly manages selectedness #744
+- Portrait sprite issue in Unity 2019 #743
+
+## Changed
+
+- Experimental Searchable menus are now enabled by default #746
+
+v3.11.4 {#v3.11.4}
+======
+
+## Changed
+
+- Updated project to Unity 2019.1.0f2
+- Updated to .NET 4.x
+- Updated reference docs
+
+v3.11.3 {#v3.11.3}
+======
+
+## Fixed
+
+- Additional null checks around Flowchart.selectedBlocks and Flowchart.selectedCommands.
+
+v3.11.2 {#v3.11.2}
+======
+
+## Fixed
+
+- Static list caching in editor.
+
+## Changed
+
+- Spacing in debug output related to Block find and execute warnings and failures.
+
+v3.11.1 {#v3.11.1}
+======
+
+## Fixed
+
+- Compile error in Unity 2018.3.6f1
+
+v3.11.0 {#v3.11.0}
+======
+
+## Added
+
+- SetSprite: changes the image on the SpriteRenderer of one or more GameObjects 
+- SetUIImage: changes the image on the Image of one or more GameObjects (Joerg Burbach)
+- Commands to store FungusVariable.ToString into a StringVariable and to parse a string into an Int or Float FungusVariable 
+
+## Fixed
+
+- #729 VariableEditor popup name and key concat no longer has spaces, allows the PopUp to correctly nest items with the same parent
+- #732 BlockInspector correct top panel height in 2018_3 BlockEditor only force unique name if it has changed
+- BlockInspector and BlockEditor changes to display correctly in 2019.1.0a13
+
+## Changed
+
+- #728 FlowchartWindow performance for 100s of blocks
+- #727 Support use of TMPro in Set Text, Get Text and Narrative Log Menu commands
+- #733 Command can now cache a list of referenced variables that are checked by the variablelistadapter for highlighting 
+- Flowchart can identify add variables found via the substitute regex 
+- Commands that use SubstituteVariables on their string data use the new caching method so they can highlight variables that will be used during substitution
+- #733 HasReference added to many commands that lacked them or had only partially checked vars
+
+v3.10.0 {#v3_10_0}
+======
+
+## Added
+- #725 Added Stop Then Call mode in Call command. Stops the calling Block immediately, instead of waiting a frame.
+- #718 Say and Menu dialogs now support TextMeshPro directly
+  - TextMeshPro demo scene - A default say dialog but with TextMeshPro Text UI elements in place of uGUI Text 
+  - A default menu dialog but with TextMeshPro Text UI elements in place of uGUI Text
+  - TextAdapter can be asked to include children in text output search MenuDialogue now uses TextAdapter rather than assuming UI.Text
+- #720 Variable reference allows for selecting a flowchart a targeting a specific fungus variable for use from c#
+- #705 Added FirstPersonDemo examples
+- New audio commands: Play Ambience Sound, Stop Ambience Sound, Play Random sound.
+
+## Fixed
+- #717 Control Audio > Play Loop volume is always 1
+- #723 Unity 2018.3 Warnings
+- #711 Beeps in WriterAudio ignores last sound in array
+- PLay Sound Effect volume is now independent of Set Music Volume setting
+- Correct width calc on smaller width inspectors
+- #708 Specifically identify choice blocks as hexagons in documentation
+
+## Changed
+- #721 Conversation text can now contain colons within the text body itself
+- #719 Change FlowchartMenuItem.SpawnPrefab to GameObject.Inst rather than PrefabUtil to avoid exception modifications.empty
+- #709 Command searchable pop up
+	- Added Fungus Preferences setting to enable Searchable PopupMenus
+- #694 Adding Random Sound Command and Ambiance Sounds - thanks to Hector Castelli
+- #704 Replaced Rotorz Reorderable List with Unity's InternalReorderable list
+- ExceuteOnEvent dropdown is searchable -can double click to circumvent the search drop down -can remove event by setting None -use search similar to add command method
+
+Changelog {#changelog}
+=========
 [TOC]
+
+v3.9.1 {#v3_9_1}
+======
+
+## Added
+- Text Variation Handler: Adds Ink-style text variation in Say, Menu and Conversation commands. #695 
+
+## Fixed
+- Fixed Reorderable List control errors in 2018.2. Compatible with 2017.4, 2018.1 2018.2 #697
+
+v3.9.0 {#v3_9_0}
+======
+
+## Added
+- Conversation command supports setting default clear, wait for input and fade options #673
+- Added Fungus Priority Signals #671 #670
+    - allows fungus to notify the outside world that it is doing something of priority so the outside world can pause
+- Added GetKey fungus command. #683
+    - Supports positive and negative keybindings output to a bool, float or int variable 
+    - Supports checking for pressed, release and current state 
+    - Uses keycode with optional fallback to key name
+- Disabled Flowcharts and EventHandlers. #682
+- Added Dialog history on Save Menu UI #675
+- Added BlockReference, a simple data type with a property drawer that makes it easier to select a target fungus block from external c# scripts. #669
+- Added comparison (equals and not equals) as well as assign functionality to most variable types. #668
+
+## Changed
+- Updated to Unity 2018.1 #681
+- Conversation Manager Regex now allows - and _ within say params group. #692
+- Conversation example scene makes some basic use of new Conversation features
+- Update LeanTween to 2.46 #689
+- PortraitController forces alpha and color tweens to be non recursive.
+- Updated playground demos
+    - Football uses GetKey instead of GetAxis (get axis was failing in some packages as inputmanager axis were not imported)
+    - Defender had a bug due to a change in how unity syncs 'up' between transform and rb2d
+
+## Fixed
+- ElseIfs now confirm that the previous condition was at the same indent as themselves. #693
+- NarrativeLog is tolerant of null Name or Story fields #690
+- Force the hierarchy icon list to refresh when a script a is loaded/changed #672
+- Eventhandlers no longer fire when the flowchart is disabled #682
+- StopFlowchart can continue now #685
+- Fixed stray \\ that were not being stripped on Mac OS, when importing editor resources. #686
+ 
+v3.8.0 {#v3_8_0}
+======
+
+Many thanks to contributors stevehalliwell, FrederickKDP, MeMark2, KVinS, charblar, FatPuzo for their work on this release!
+
+## Added
+- Added Flowchart.HasBlock() and ExecuteIfHasBlock() methods
+- Added Global Variable support. Variables have new 'Global' variable scope.
+- Added GlobalVar demo scene
+
+## Changed
+- Updated project version to Unity 2017.4.0f1
+- Refactored the set variable system to make it easier to add variable comparison options
+- Added comparison and setting of GameObjects variables
+- Updated Batch for newer versions of Unity3D web player #650
+
+## Fixed
+- Fixed compile errors in Unity 2018.1 beta
+- Fixed compiler warnings in Untity2017.3
+- Fixed repeat play of music #659
+- Fixed conflicting EditorResource folder issue #664
+- Fixed SaveMenu DontDestroyOnLoad problems #661
+- Fixed docs: the block name in 6 of "Connections between Blocks" section from "Block2" to "Start" #663
+- Fixed lua say() function to match new say method parameters
+
+v3.7.0 {#v3_7_0}
+======
+
+Many thanks to maintainer Steve Halliwell for all the amazing new functionality in this release!
+
+## Added
+- Added Playground examples showing 3 simple arcade games made using Fungus
+- Added Rigidbody2D variable type 
+- Added Vector3 FungusCommands - Fields, Normalise, Convert to Vector2, Arithetic 
+- Added TransformProperty FungusCommand. Get and Set a transform's fields and properties. Does not currently support rotation, localRotation nor the Mat4x4 commands as we do not have the appropriate FungusVariables to store them in 
+- Added FungusCommand to Reload Current Scene 
+- Added Rigidbody2D FungusCommands - AddForce, AddTorque, StopMotion 
+- Added Input GetAxis fungusCommand, fetch Input.GetAxis and store in a FloatData 
+- SpawnObject FungusCommand can now store the gameobject it instantiates and can spawn at itself 
+- Destroy FungusCommand can now be told to pass down a delay to Destroy 
+- Added Fungus Commands for most of MathF 
+- Added Math demo scene
+- Added Mouse fungus event demo scene
+- Added Monobehaviour fungus event handlers and physics demo scene
+- Added LeanTween commands and demo scene that approximates the old iTween demo
+- Added SpeakingCharacter property to SayDialog
+- Added Fungus panel in editor preferences 
+- Added option to toggle off the fungus icon in the hierarchy in case it conflicts with other tools or is just undesired
+- Added TextTag WVO WaitForVoiceOver #572
+- Added ability to show variable list in the Flowchart Inspector #643
+- OpenURL FungusCommand renamed, fixes #554 #642
+
+## Changed
+- SaveManager now uses json files in a FungusSaves sub directory for all platforms but webplayer & webgl which still use playerprefs
+- GetCommandInfo returns the highest priority CommandInfo to better support multiple names while maintaining what is shown in the inspector
+- Allow multiple CommandInfos to be added to a class SpawnObject can now also be found under GameObject/Instantiate
+- Changed Fungus icon loading to use FungusEditorResources
+
+## Fixed
+- Fixed typo in BlockEditor.BlockField() #633 
+- Fixed custom editor for ElseIf command #630
+- Fixed Prefab Variable Dereferencing #618
+- Fixed typo in Set Interactable description #647
+- Fixed choice dialogues were not set to stay during the MenuDialogue #640
+- Fixed camera fading and panning at the same time (thanks to iBicha!) #624
+- Fixed warnings on Unity 2017.2 
+
+v3.6.0 {#v3_6_0}
+======
+
+## Added
+- Support use of \n newline character in Say and Conversation text
+- Added Fungus-Playmaker integration package in Fungus/Integrations/PlayMaker #602 - thanks Nilihum
+- Added Delete Save Data button to Save Menu inspector.
+- Variable substitution works in Set Variable (String) command
+- New "BlockNameAndCustom" Keymode for Save Point command, use both block name and custom key together. #597 - thanks Trieger
+- Added portrait DimColor #601 - thanks MorningFunGame
+- Lua If and Lua Else If commands #609 - thanks PillowFightIo
+- Stop a named Block in a Flowchart
+- Added utility to convert all files to Mac line endings
+
+## Changed
+- Made all methods virtual in SayDialog.cs #607 thanks PillowFightIo
+- Updated project to Unity 5.6.1, fixed some warnings.
+- Use transform.Find instead of deprecated transform.FindChild
+- Replaced some uses of slow GameObject.FindObjectOfType() and FindDerivedTypes()
+
+## Fixed
+- Fixed Write command "Clear Text" option not working #594
+- Fixed portrait hide bug in conversation #590 - thanks to lealeelu
+- Fixed stopping audio in conversation #592 - thanks to lealeelu
+- Fixed can't use FungusLua separately to rest of Fungus #596
+- Fixed can't inspect disabled Flowchart #598
+- Fixed Cmd+Left Click doesn't register as right click on OSX #595
+- Fixed luautils won't work on FungusLua standalone #604
+- Fixed Save Menu: clicking to left of collapsed menu clicks hidden buttons #615
+- Fixed Localization only localizes character name, not story text #611, #614
 
 v3.5.1 {#v3_5_1}
 ======
@@ -226,16 +598,16 @@ Awesome github contributors:
 
 ## Added
 - FungusLua: Lua scripting support for Fungus via wrapper components for using MoonSharp in Unity. #281, #317, #334, #237, #235, #232, #224
-	- LuaEnvironment component: Execution environment for running Lua scripts.
-	- LuaUtils component: Extends LuaEnvironment with lots of useful features.
-	- LuaBindings: Maps Unity objects & components to Lua variables for use in Lua scripts.
-	- LuaScript: Runs Lua code from a text file or from a string property.
-	- LuaStore: Stores variables in a global table which persists across scene loads.
-	- FungusModule: A set of utility functions for scripting Unity and Fungus from Lua.
-	- FungusPrefs: An improved version of PlayerPrefs that can be easily used from Lua.
-	- ExecuteHandler: Listens for any standard Unity event and calls a method on a component in the gameobject. #247
-	- ExecuteLua command: Run some Lua script in a Fungus command. Return values can be stored in Fungus variables.
-	- PODTypeFactory: Utility factory class for instantiating Plain-Old-Data (POD) types like Color, Vector3, etc.
+    - LuaEnvironment component: Execution environment for running Lua scripts.
+    - LuaUtils component: Extends LuaEnvironment with lots of useful features.
+    - LuaBindings: Maps Unity objects & components to Lua variables for use in Lua scripts.
+    - LuaScript: Runs Lua code from a text file or from a string property.
+    - LuaStore: Stores variables in a global table which persists across scene loads.
+    - FungusModule: A set of utility functions for scripting Unity and Fungus from Lua.
+    - FungusPrefs: An improved version of PlayerPrefs that can be easily used from Lua.
+    - ExecuteHandler: Listens for any standard Unity event and calls a method on a component in the gameobject. #247
+    - ExecuteLua command: Run some Lua script in a Fungus command. Return values can be stored in Fungus variables.
+    - PODTypeFactory: Utility factory class for instantiating Plain-Old-Data (POD) types like Color, Vector3, etc.
     - Lots of FungusLua example scenes
     - Fungus documentation now has an extensive section on LuaScripting.
 - StringDataMulti: Like StringData, but uses a multi-line textbox in the inspector.
@@ -307,16 +679,16 @@ v2.4.0 {#v2_4_0}
 
 ## Added
 - FungusLua: Lua scripting support for Fungus via wrapper components for using MoonSharp in Unity. #281, #317, #334, #237, #235, #232, #224
-	- LuaEnvironment component: Execution environment for running Lua scripts.
-	- LuaUtils component: Extends LuaEnvironment with lots of useful features.
-	- LuaBindings: Maps Unity objects & components to Lua variables for use in Lua scripts.
-	- LuaScript: Runs Lua code from a text file or from a string property.
-	- LuaStore: Stores variables in a global table which persists across scene loads.
-	- FungusModule: A set of utility functions for scripting Unity and Fungus from Lua.
-	- FungusPrefs: An improved version of PlayerPrefs that can be easily used from Lua.
-	- ExecuteHandler: Listens for any standard Unity event and calls a method on a component in the gameobject. #247
-	- ExecuteLua command: Run some Lua script in a Fungus command. Return values can be stored in Fungus variables.
-	- PODTypeFactory: Utility factory class for instantiating Plain-Old-Data (POD) types like Color, Vector3, etc.
+    - LuaEnvironment component: Execution environment for running Lua scripts.
+    - LuaUtils component: Extends LuaEnvironment with lots of useful features.
+    - LuaBindings: Maps Unity objects & components to Lua variables for use in Lua scripts.
+    - LuaScript: Runs Lua code from a text file or from a string property.
+    - LuaStore: Stores variables in a global table which persists across scene loads.
+    - FungusModule: A set of utility functions for scripting Unity and Fungus from Lua.
+    - FungusPrefs: An improved version of PlayerPrefs that can be easily used from Lua.
+    - ExecuteHandler: Listens for any standard Unity event and calls a method on a component in the gameobject. #247
+    - ExecuteLua command: Run some Lua script in a Fungus command. Return values can be stored in Fungus variables.
+    - PODTypeFactory: Utility factory class for instantiating Plain-Old-Data (POD) types like Color, Vector3, etc.
     - Lots of FungusLua example scenes
     - Fungus documentation now has an extensive section on LuaScripting.
 - StringDataMulti: Like StringData, but uses a multi-line textbox in the inspector.

@@ -1,4 +1,4 @@
-﻿// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+﻿// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using System.Text;
@@ -15,11 +15,6 @@ namespace Fungus
         /// This is exposed publicly to allow for optimized string manipulation in client code.
         /// </summary>
         StringBuilder _StringBuilder { get; }
-
-        /// <summary>
-        /// Populates a cache of all components in the scene that implement ISubstitutionHandler.
-        /// </summary>
-        void CacheSubstitutionHandlers();
 
         /// <summary>
         /// Returns a new string that has been processed by all substitution handlers in the scene.

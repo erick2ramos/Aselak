@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 ﻿using UnityEngine;
@@ -42,12 +42,6 @@ namespace Fungus
         protected static Dictionary<string, string> localizedStrings = new Dictionary<string, string>();
 
         #if UNITY_5_4_OR_NEWER
-        protected virtual void Awake()
-        {
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (A, B) => {
-                LevelWasLoaded();
-            };
-        }
         #else
         public virtual void OnLevelWasLoaded(int level) 
         {
@@ -63,6 +57,27 @@ namespace Fungus
                 // This language will be used when Start() is called
                 activeLanguage = SetLanguage.mostRecentLanguage;
             }
+        }
+
+        private void SceneManager_activeSceneChanged(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.Scene arg1)
+        {
+            LevelWasLoaded();
+        }
+
+        protected virtual void OnEnable()
+        {
+            StringSubstituter.RegisterHandler(this);
+            #if UNITY_5_4_OR_NEWER
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
+            #endif
+        }
+
+        protected virtual void OnDisable()
+        {
+            StringSubstituter.UnregisterHandler(this);
+            #if UNITY_5_4_OR_NEWER
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
+            #endif
         }
 
         protected virtual void Start()
@@ -545,7 +560,7 @@ namespace Fungus
             Init();
 
             // Instantiate the regular expression object.
-            Regex r = new Regex("{\\$.*?}");
+            Regex r = new Regex(Flowchart.SubstituteVariableRegexString);
 
             bool modified = false;
 

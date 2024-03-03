@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -13,26 +13,6 @@ namespace Fungus
     [System.Serializable]
     public class StringVariable : VariableBase<string>
     {
-        public virtual bool Evaluate(CompareOperator compareOperator, string stringValue)
-        {
-            string lhs = Value;
-            string rhs = stringValue;
-
-            bool condition = false;
-
-            switch (compareOperator)
-            {
-            case CompareOperator.Equals:
-                condition = lhs == rhs;
-                break;
-            case CompareOperator.NotEquals:
-            default:
-                condition = lhs != rhs;
-                break;
-            }
-
-            return condition;
-        }
     }
 
     /// <summary>
@@ -75,7 +55,7 @@ namespace Fungus
         {
             if (stringRef == null)
             {
-                return stringVal;
+                return stringVal != null ? stringVal : string.Empty;
             }
             else
             {
@@ -125,7 +105,7 @@ namespace Fungus
         {
             if (stringRef == null)
             {
-                return stringVal;
+                return stringVal != null ? stringVal : string.Empty;
             }
             else
             {

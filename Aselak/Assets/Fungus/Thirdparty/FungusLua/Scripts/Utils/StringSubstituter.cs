@@ -1,11 +1,13 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+#if NETFX_CORE
 using MarkerMetro.Unity.WinLegacy.Reflection;
+#endif
 
 namespace Fungus
 {
@@ -14,7 +16,7 @@ namespace Fungus
     /// </summary>
     public class StringSubstituter : IStringSubstituter
     {
-        protected List<ISubstitutionHandler> substitutionHandlers = new List<ISubstitutionHandler>();
+        protected static List<ISubstitutionHandler> substitutionHandlers = new List<ISubstitutionHandler>();
 
         /// <summary>
         /// The StringBuilder instance used to substitute strings optimally.
@@ -24,6 +26,19 @@ namespace Fungus
         protected int recursionDepth;
 
         #region Public members
+
+        public static void RegisterHandler(ISubstitutionHandler handler)
+        {
+            if (!substitutionHandlers.Contains(handler))
+            {
+                substitutionHandlers.Add(handler);
+            }
+        }
+
+        public static void UnregisterHandler(ISubstitutionHandler handler)
+        {
+            substitutionHandlers.Remove(handler);
+        }
 
         /// <summary>
         /// Constructor which caches all components in the scene that implement ISubstitutionHandler.
@@ -40,34 +55,6 @@ namespace Fungus
         #region IStringSubstituter implementation
 
         public virtual StringBuilder _StringBuilder { get { return stringBuilder; } }
-
-        public virtual void CacheSubstitutionHandlers()
-        {
-            // Use reflection to find all components in the scene that implement ISubstitutionHandler
-#if NETFX_CORE
-            var types = this.GetType().GetAssembly().GetTypes().Where(type => type.IsClass() &&
-                !type.IsAbstract() &&
-                typeof(ISubstitutionHandler).IsAssignableFrom(type));
-#else
-            var types = this.GetType().Assembly.GetTypes().Where(type => type.IsClass &&
-                !type.IsAbstract &&
-                typeof(ISubstitutionHandler).IsAssignableFrom(type));
-#endif
-
-            substitutionHandlers.Clear();
-            foreach (System.Type t in types)
-            {
-                Object[] objects = GameObject.FindObjectsOfType(t);
-                foreach (Object o in objects)
-                {
-                    ISubstitutionHandler handler = o as ISubstitutionHandler;
-                    if (handler != null)
-                    {
-                        substitutionHandlers.Add(handler);
-                    }
-                }
-            }
-        }
 
         public virtual string SubstituteStrings(string input)
         {

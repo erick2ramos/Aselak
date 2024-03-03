@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -21,6 +21,67 @@ namespace Fungus
         protected Button[] cachedButtons;
 
         protected Slider cachedSlider;
+        private int nextOptionIndex;
+
+        #region Public members
+
+        /// <summary>
+        /// Currently active Menu Dialog used to display Menu options
+        /// </summary>
+        public static MenuDialog ActiveMenuDialog { get; set; }
+
+        /// <summary>
+        /// A cached list of button objects in the menu dialog.
+        /// </summary>
+        /// <value>The cached buttons.</value>
+        public virtual Button[] CachedButtons { get { return cachedButtons; } }
+
+        /// <summary>
+        /// A cached slider object used for the timer in the menu dialog.
+        /// </summary>
+        /// <value>The cached slider.</value>
+        public virtual Slider CachedSlider { get { return cachedSlider; } }
+
+        /// <summary>
+        /// Sets the active state of the Menu Dialog gameobject.
+        /// </summary>
+        public virtual void SetActive(bool state)
+        {
+            gameObject.SetActive(state);
+        }
+
+
+
+        /// <summary>
+        /// Returns a menu dialog by searching for one in the scene or creating one if none exists.
+        /// </summary>
+        public static MenuDialog GetMenuDialog()
+        {
+            if (ActiveMenuDialog == null)
+            {
+                // Use first Menu Dialog found in the scene (if any)
+                var md = GameObject.FindObjectOfType<MenuDialog>();
+                if (md != null)
+                {
+                    ActiveMenuDialog = md;
+                }
+
+                if (ActiveMenuDialog == null)
+                {
+                    // Auto spawn a menu dialog object from the prefab
+                    GameObject prefab = Resources.Load<GameObject>("Prefabs/MenuDialog");
+                    if (prefab != null)
+                    {
+                        GameObject go = Instantiate(prefab) as GameObject;
+                        go.SetActive(false);
+                        go.name = "MenuDialog";
+                        ActiveMenuDialog = go.GetComponent<MenuDialog>();
+                    }
+                }
+            }
+
+            return ActiveMenuDialog;
+        }
 
         protected virtual void Awake()
         {
@@ -66,9 +127,9 @@ namespace Fungus
         protected virtual IEnumerator WaitForTimeout(float timeoutDuration, Block targetBlock)
         {
             float elapsedTime = 0;
-            
-            Slider timeoutSlider = GetComponentInChildren<Slider>();
-            
+
+            Slider timeoutSlider = CachedSlider;
+
             while (elapsedTime < timeoutDuration)
             {
                 if (timeoutSlider != null)
@@ -76,12 +137,12 @@ namespace Fungus
                     float t = 1f - elapsedTime / timeoutDuration;
                     timeoutSlider.value = t;
                 }
-                
+
                 elapsedTime += Time.deltaTime;
-                
+
                 yield return null;
             }
-            
+
             Clear();
             gameObject.SetActive(false);
 
@@ -108,64 +169,6 @@ namespace Fungus
             }
         }
 
-        #region Public members
-
-        /// <summary>
-        /// Currently active Menu Dialog used to display Menu options
-        /// </summary>
-        public static MenuDialog ActiveMenuDialog { get; set; }
-
-        /// <summary>
-        /// Returns a menu dialog by searching for one in the scene or creating one if none exists.
-        /// </summary>
-        public static MenuDialog GetMenuDialog()
-        {
-            if (ActiveMenuDialog == null)
-            {
-                // Use first Menu Dialog found in the scene (if any)
-                var md = GameObject.FindObjectOfType<MenuDialog>();
-                if (md != null)
-                {
-                    ActiveMenuDialog = md;
-                }
-
-                if (ActiveMenuDialog == null)
-                {
-                    // Auto spawn a menu dialog object from the prefab
-                    GameObject prefab = Resources.Load<GameObject>("Prefabs/MenuDialog");
-                    if (prefab != null)
-                    {
-                        GameObject go = Instantiate(prefab) as GameObject;
-                        go.SetActive(false);
-                        go.name = "MenuDialog";
-                        ActiveMenuDialog = go.GetComponent<MenuDialog>();
-                    }
-                }
-            }
-
-            return ActiveMenuDialog;
-        }
-
-        /// <summary>
-        /// A cached list of button objects in the menu dialog.
-        /// </summary>
-        /// <value>The cached buttons.</value>
-        public virtual Button[] CachedButtons { get { return cachedButtons; } }
-
-        /// <summary>
-        /// A cached slider object used for the timer in the menu dialog.
-        /// </summary>
-        /// <value>The cached slider.</value>
-        public virtual Slider CachedSlider { get { return cachedSlider; } }
-
-        /// <summary>
-        /// Sets the active state of the Menu Dialog gameobject.
-        /// </summary>
-        public virtual void SetActive(bool state)
-        {
-            gameObject.SetActive(state);
-        }
-
         /// <summary>
         /// Clear all displayed options in the Menu Dialog.
         /// </summary>
@@ -173,7 +176,13 @@ namespace Fungus
         {
             StopAllCoroutines();
 
-            var optionButtons = GetComponentsInChildren<Button>();
+            //if something was shown notify that we are ending
+            if(nextOptionIndex != 0)
+                MenuSignals.DoMenuEnd(this);
+
+            nextOptionIndex = 0;
+
+            var optionButtons = CachedButtons;
             for (int i = 0; i < optionButtons.Length; i++)
             {
                 var button = optionButtons[i];
@@ -185,11 +194,12 @@ namespace Fungus
                 var button = optionButtons[i];
                 if (button != null)
                 {
+                    button.transform.SetSiblingIndex(i);
                     button.gameObject.SetActive(false);
                 }
             }
 
-            Slider timeoutSlider = GetComponentInChildren<Slider>();
+            Slider timeoutSlider = CachedSlider;
             if (timeoutSlider != null)
             {
                 timeoutSlider.gameObject.SetActive(false);
@@ -215,53 +225,29 @@ namespace Fungus
         /// <returns><c>true</c>, if the option was added successfully.</returns>
         /// <param name="text">The option text to display on the button.</param>
         /// <param name="interactable">If false, the option is displayed but is not selectable.</param>
+        /// <param name="hideOption">If true, the option is not displayed but the menu knows that option can or did exist</param>
         /// <param name="targetBlock">Block to execute when the option is selected.</param>
-        public virtual bool AddOption(string text, bool interactable, Block targetBlock)
+        public virtual bool AddOption(string text, bool interactable, bool hideOption, Block targetBlock)
         {
-            bool addedOption = false;
-            for (int i = 0; i < cachedButtons.Length; i++)
+            var block = targetBlock;
+            UnityEngine.Events.UnityAction action = delegate
             {
-                var button = cachedButtons[i];
-                if (!button.gameObject.activeSelf)
+                EventSystem.current.SetSelectedGameObject(null);
+                StopAllCoroutines();
+                // Stop timeout
+                Clear();
+                HideSayDialog();
+                if (block != null)
                 {
-                    button.gameObject.SetActive(true);
-                    button.interactable = interactable;
-                    if (interactable && autoSelectFirstButton && !cachedButtons.Select(x => x.gameObject).Contains(EventSystem.current.currentSelectedGameObject))
-                    {
-                        EventSystem.current.SetSelectedGameObject(button.gameObject);
-                    }
-                    Text textComponent = button.GetComponentInChildren<Text>();
-                    if (textComponent != null)
-                    {
-                        textComponent.text = text;
-                    }
-                    var block = targetBlock;
-                    button.onClick.AddListener(delegate
-                    {
-                        EventSystem.current.SetSelectedGameObject(null);
-                        StopAllCoroutines();
-                        // Stop timeout
-                        Clear();
-                        HideSayDialog();
-                        if (block != null)
-                        {
-                            var flowchart = block.GetFlowchart();
-                            #if UNITY_EDITOR
-                            // Select the new target block in the Flowchart window
-                            flowchart.SelectedBlock = block;
-                            #endif
-                            gameObject.SetActive(false);
-                            // Use a coroutine to call the block on the next frame
-                            // Have to use the Flowchart gameobject as the MenuDialog is now inactive
-                            flowchart.StartCoroutine(CallBlock(block));
-                        }
-                    });
-                    addedOption = true;
-                    break;
+                    var flowchart = block.GetFlowchart();
+                    gameObject.SetActive(false);
+                    // Use a coroutine to call the block on the next frame
+                    // Have to use the Flowchart gameobject as the MenuDialog is now inactive
+                    flowchart.StartCoroutine(CallBlock(block));
                 }
-            }
+            };
 
-            return addedOption;
+            return AddOption(text, interactable, hideOption, action);
         }
 
         /// <summary>
@@ -276,39 +262,70 @@ namespace Fungus
                 gameObject.SetActive(true);
             }
 
-            bool addedOption = false;
-            for (int i = 0; i < CachedButtons.Length; i++)
+            // Copy to local variables 
+            LuaEnvironment env = luaEnv;
+            Closure call = callBack;
+            UnityEngine.Events.UnityAction action = delegate
             {
-                var button = CachedButtons[i];
-                if (!button.gameObject.activeSelf)
-                {
-                    button.gameObject.SetActive(true);
-                    button.interactable = interactable;
-                    var textComponent = button.GetComponentInChildren<Text>();
-                    if (textComponent != null)
-                    {
-                        textComponent.text = text;
-                    }
+                StopAllCoroutines();
+                // Stop timeout
+                Clear();
+                HideSayDialog();
+                // Use a coroutine to call the callback on the next frame
+                StartCoroutine(CallLuaClosure(env, call));
+            };
 
-                    // Copy to local variables 
-                    LuaEnvironment env = luaEnv;
-                    Closure call = callBack;
-                    button.onClick.AddListener(delegate
-                    {
-                        StopAllCoroutines();
-                        // Stop timeout
-                        Clear();
-                        HideSayDialog();
-                        // Use a coroutine to call the callback on the next frame
-                        StartCoroutine(CallLuaClosure(env, call));
-                    });
-                    
-                    addedOption = true;
-                    break;
-                }
+            return AddOption(text, interactable, false, action);
+        }
+
+        /// <summary>
+        /// Adds the option to the list of displayed options. Calls a Block when selected.
+        /// Will cause the Menu dialog to become visible if it is not already visible.
+        /// </summary>
+        /// <returns><c>true</c>, if the option was added successfully.</returns>
+        /// <param name="text">The option text to display on the button.</param>
+        /// <param name="interactable">If false, the option is displayed but is not selectable.</param>
+        /// <param name="hideOption">If true, the option is not displayed but the menu knows that option can or did exist</param>
+        /// <param name="action">Action attached to the button on the menu item</param>
+        private bool AddOption(string text, bool interactable, bool hideOption, UnityEngine.Events.UnityAction action)
+        {
+            if (nextOptionIndex >= CachedButtons.Length)
+            {
+                Debug.LogWarning("Unable to add menu item, not enough buttons: " + text);
+                return false;
+            }
+            //if first option notify that a menu has started
+            if(nextOptionIndex == 0)
+                MenuSignals.DoMenuStart(this);
+
+            var button = cachedButtons[nextOptionIndex];
+            
+            //move forward for next call
+            nextOptionIndex++;
+
+            //don't need to set anything on it
+            if (hideOption)
+                return true;
+
+            button.gameObject.SetActive(true);
+            button.interactable = interactable;
+            if (interactable && autoSelectFirstButton && !cachedButtons.Select(x => x.gameObject).Contains(EventSystem.current.currentSelectedGameObject))
+            {
+                EventSystem.current.SetSelectedGameObject(button.gameObject);
             }
 
-            return addedOption;
+            TextAdapter textAdapter = new TextAdapter();
+            textAdapter.InitFromGameObject(button.gameObject, true);
+            if (textAdapter.HasTextObject())
+            {
+                text = TextVariationHandler.SelectVariations(text);
+
+                textAdapter.Text = text;
+            }
+
+            button.onClick.AddListener(action);
+            
+            return true;
         }
 
         /// <summary>
@@ -324,6 +341,10 @@ namespace Fungus
                 gameObject.SetActive(true);
                 StopAllCoroutines();
                 StartCoroutine(WaitForTimeout(duration, targetBlock));
+            }
+            else
+            {
+                Debug.LogWarning("Unable to show timer, no slider set");
             }
         }
 
@@ -342,7 +363,7 @@ namespace Fungus
             StopAllCoroutines();
 
             float elapsedTime = 0;
-            Slider timeoutSlider = GetComponentInChildren<Slider>();
+            Slider timeoutSlider = CachedSlider;
 
             while (elapsedTime < duration)
             {
@@ -393,6 +414,17 @@ namespace Fungus
                 return count;
             }
         }
+
+		/// <summary>
+		/// Shuffle the parent order of the cached buttons, allows for randomising button order, buttons are auto reordered when cleared
+		/// </summary>
+		public void Shuffle(System.Random r)
+		{
+			for (int i = 0; i < CachedButtons.Length; i++)
+			{
+				CachedButtons[i].transform.SetSiblingIndex(r.Next(CachedButtons.Length));
+			}
+		}
 
         #endregion
     }    

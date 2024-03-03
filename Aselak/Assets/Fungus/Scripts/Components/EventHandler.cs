@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -41,6 +41,9 @@ namespace Fungus
         [FormerlySerializedAs("parentSequence")]
         [SerializeField] protected Block parentBlock;
 
+        [Tooltip("If true, the flowchart window will not auto select the Block when the Event Handler fires. Affects Editor only.")]
+        [SerializeField] protected bool suppressBlockAutoSelect = false;
+
         #region Public members
 
         /// <summary>
@@ -65,10 +68,15 @@ namespace Fungus
 
             var flowchart = ParentBlock.GetFlowchart();
 
-            // Auto-follow the executing block if none is currently selected
-            if (flowchart.SelectedBlock == null)
+            //if somehow the flowchart is invalid or has been disabled we don't want to continue
+            if(flowchart == null || !flowchart.isActiveAndEnabled)
             {
-                flowchart.SelectedBlock = ParentBlock;
+                return false;
+            }
+
+            if (suppressBlockAutoSelect)
+            {
+                ParentBlock.SuppressNextAutoSelection = true;
             }
 
             return flowchart.ExecuteBlock(ParentBlock);

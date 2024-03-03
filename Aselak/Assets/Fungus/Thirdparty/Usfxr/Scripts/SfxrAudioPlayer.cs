@@ -36,7 +36,6 @@ public class SfxrAudioPlayer : MonoBehaviour {
 	 * @author Zeh Fernando
 	 */
 
-
 	// Properties
 	private bool		isDestroyed = false;		// If true, this instance has been destroyed and shouldn't do anything yes
 	private bool		needsToDestroy = false;		// If true, it has been scheduled for destruction (from outside the main thread)

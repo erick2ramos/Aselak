@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -18,6 +18,8 @@ namespace Fungus
     [ExecuteInEditMode]
     public class Flowchart : MonoBehaviour, ISubstitutionHandler
     {
+        public const string SubstituteVariableRegexString = "{\\$.*?}";
+
         [HideInInspector]
         [SerializeField] protected int version = 0; // Default to 0 to always trigger an update for older versions of Fungus.
 
@@ -86,15 +88,11 @@ namespace Fungus
 
         protected StringSubstituter stringSubstituer;
 
-        #if UNITY_5_4_OR_NEWER
-        protected virtual void Awake()
-        {
-            CheckEventSystem();
+#if UNITY_EDITOR
+        public bool SelectedCommandsStale { get; set; }
+#endif
 
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (A, B) => {
-                LevelWasLoaded();
-            };
-        }
+        #if UNITY_5_4_OR_NEWER
         #else
         protected virtual void OnLevelWasLoaded(int level) 
         {
@@ -137,16 +135,38 @@ namespace Fungus
             eventSystemPresent = true;
         }
 
+        private void SceneManager_activeSceneChanged(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.Scene arg1)
+        {
+            LevelWasLoaded();
+        }
+
         protected virtual void OnEnable()
         {
             if (!cachedFlowcharts.Contains(this))
             {
                 cachedFlowcharts.Add(this);
+                //TODO these pairs could be replaced by something static that manages all active flowcharts
+                #if UNITY_5_4_OR_NEWER
+                UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
+                #endif
             }
 
             CheckItemIds();
             CleanupComponents();
             UpdateVersion();
+
+            StringSubstituter.RegisterHandler(this);   
+        }
+
+        protected virtual void OnDisable()
+        {
+            cachedFlowcharts.Remove(this);
+
+            #if UNITY_5_4_OR_NEWER
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
+            #endif
+
+            StringSubstituter.UnregisterHandler(this);   
         }
 
         protected virtual void UpdateVersion()
@@ -170,11 +190,6 @@ namespace Fungus
             }
 
             version = FungusConstants.CurrentVersion;
-        }
-
-        protected virtual void OnDisable()
-        {
-            cachedFlowcharts.Remove(this);
         }
 
         protected virtual void CheckItemIds()
@@ -214,6 +229,12 @@ namespace Fungus
             // Remove any null entries in the variables list
             // It shouldn't happen but it seemed to occur for a user on the forum 
             variables.RemoveAll(item => item == null);
+
+            if (selectedBlocks == null) selectedBlocks = new List<Block>();
+            if (selectedCommands == null) selectedCommands = new List<Command>();
+
+            selectedBlocks.RemoveAll(item => item == null);
+            selectedCommands.RemoveAll(item => item == null);
 
             var allVariables = GetComponents<Variable>();
             for (int i = 0; i < allVariables.Length; i++)
@@ -331,12 +352,15 @@ namespace Fungus
         { 
             get
             {
-                return selectedBlocks.FirstOrDefault();
+                if (selectedBlocks == null || selectedBlocks.Count == 0)
+                    return null;
+
+                return selectedBlocks[0];
             } 
             set
             {
-                selectedBlocks.Clear();
-                selectedBlocks.Add(value);
+                ClearSelectedBlocks();
+                AddSelectedBlock(value);
             } 
         }
 
@@ -351,6 +375,8 @@ namespace Fungus
         /// The list of variables that can be accessed by the Flowchart.
         /// </summary>
         public virtual List<Variable> Variables { get { return variables; } }
+
+        public virtual int VariableCount { get { return variables.Count; } }
 
         /// <summary>
         /// Description text displayed in the Flowchart editor window
@@ -474,6 +500,31 @@ namespace Fungus
         }
 
         /// <summary>
+        /// Checks availability of the block in the Flowchart.
+        /// You can use this method in a UI event. e.g. to test availability block, before handle it.
+        public virtual bool HasBlock(string blockName)
+        {
+            var block = FindBlock(blockName);
+            return block != null;
+        }
+
+        /// <summary>
+        /// Executes the block if it is available in the Flowchart.
+        /// You can use this method in a UI event. e.g. to try executing block without confidence in its existence.
+        public virtual bool ExecuteIfHasBlock(string blockName)
+        {
+            if (HasBlock(blockName))
+            {
+                ExecuteBlock(blockName);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }        
+
+        /// <summary>
         /// Execute a child block in the Flowchart.
         /// You can use this method in a UI event. e.g. to handle a button click.
         public virtual void ExecuteBlock(string blockName)
@@ -482,13 +533,32 @@ namespace Fungus
 
             if (block == null)
             {
-                Debug.LogError("Block " + blockName  + "does not exist");
+                Debug.LogError("Block " + blockName  + " does not exist");
                 return;
             }
 
             if (!ExecuteBlock(block))
             {
-                Debug.LogWarning("Block " + blockName  + "failed to execute");
+                Debug.LogWarning("Block " + blockName  + " failed to execute");
+            }
+        }
+            
+        /// <summary>
+        /// Stops an executing Block in the Flowchart.
+        /// </summary>
+        public virtual void StopBlock(string blockName)
+        {
+            var block = FindBlock(blockName);
+
+            if (block == null)
+            {
+                Debug.LogError("Block " + blockName  + " does not exist");
+                return;
+            }
+
+            if (block.IsExecuting())
+            {
+                block.Stop();
             }
         }
 
@@ -515,6 +585,7 @@ namespace Fungus
             // Can't restart a running block, have to wait until it's idle again
             if (block.IsExecuting())
             {
+                Debug.LogWarning(block.BlockName + " cannot be called/executed, it is already running.");
                 return false;
             }
 
@@ -727,6 +798,23 @@ namespace Fungus
 
             Debug.LogWarning("Variable " + key + " not found.");
             return null;
+        }
+
+        /// <summary>
+        /// Returns a list of variables matching the specified type.
+        /// </summary>
+        public virtual List<T> GetVariables<T>() where T: Variable
+        {
+            var varsFound = new List<T>();
+            
+            for (int i = 0; i < Variables.Count; i++)
+            {
+                var currentVar = Variables[i];
+                if (currentVar is T)
+                    varsFound.Add(currentVar as T);
+            }
+
+            return varsFound;
         }
 
         /// <summary>
@@ -1040,6 +1128,9 @@ namespace Fungus
         public virtual void ClearSelectedCommands()
         {
             selectedCommands.Clear();
+#if UNITY_EDITOR
+            SelectedCommandsStale = true;
+#endif
         }
 
         /// <summary>
@@ -1050,14 +1141,31 @@ namespace Fungus
             if (!selectedCommands.Contains(command))
             {
                 selectedCommands.Add(command);
+#if UNITY_EDITOR
+                SelectedCommandsStale = true;
+#endif
             }
         }
-
+        
         /// <summary>
         /// Clears the list of selected blocks.
         /// </summary>
         public virtual void ClearSelectedBlocks()
         {
+            if(selectedBlocks == null)
+            {
+                selectedBlocks = new List<Block>();
+            }
+
+            for (int i = 0; i < selectedBlocks.Count; i++)
+            {
+                var item = selectedBlocks[i];
+
+                if(item != null)
+                {
+                    item.IsSelected = false;
+                }
+            }
             selectedBlocks.Clear();
         }
 
@@ -1068,7 +1176,42 @@ namespace Fungus
         {
             if (!selectedBlocks.Contains(block))
             {
+                block.IsSelected = true;
                 selectedBlocks.Add(block);
+            }
+        }
+
+        public virtual bool DeselectBlock(Block block)
+        {
+            if (selectedBlocks.Contains(block))
+            {
+                DeselectBlockNoCheck(block);
+                return true;
+            }
+            return false;
+        }
+
+        public virtual void DeselectBlockNoCheck(Block b)
+        {
+            b.IsSelected = false;
+            selectedBlocks.Remove(b);
+        }
+
+        public void UpdateSelectedCache()
+        {
+            selectedBlocks.Clear();
+            var res = gameObject.GetComponents<Block>();
+            selectedBlocks = res.Where(x => x.IsSelected).ToList();
+        }
+
+        public void ReverseUpdateSelectedCache()
+        {
+            for (int i = 0; i < selectedBlocks.Count; i++)
+            {
+                if(selectedBlocks[i] != null)
+                {
+                    selectedBlocks[i].IsSelected = true;
+                }
             }
         }
 
@@ -1162,7 +1305,6 @@ namespace Fungus
             if (stringSubstituer == null)
             {
                 stringSubstituer = new StringSubstituter();
-                stringSubstituer.CacheSubstitutionHandlers();
             }
 
             // Use the string builder from StringSubstituter for efficiency.
@@ -1171,7 +1313,7 @@ namespace Fungus
             sb.Append(input);
 
             // Instantiate the regular expression object.
-            Regex r = new Regex("{\\$.*?}");
+            Regex r = new Regex(SubstituteVariableRegexString);
 
             bool changed = false;
 
@@ -1209,6 +1351,23 @@ namespace Fungus
             }
         }
 
+        public virtual void DetermineSubstituteVariables(string str, List<Variable> vars)
+        {
+            Regex r = new Regex(Flowchart.SubstituteVariableRegexString);
+
+            // Match the regular expression pattern against a text string.
+            var results = r.Matches(str);
+            for (int i = 0; i < results.Count; i++)
+            {
+                var match = results[i];
+                var v = GetVariable(match.Value.Substring(2, match.Value.Length - 3));
+                if (v != null)
+                {
+                    vars.Add(v);
+                }
+            }
+        }
+
         #endregion
 
         #region IStringSubstituter implementation
@@ -1222,7 +1381,7 @@ namespace Fungus
         public virtual bool SubstituteStrings(StringBuilder input)
         {
             // Instantiate the regular expression object.
-            Regex r = new Regex("{\\$.*?}");
+            Regex r = new Regex(SubstituteVariableRegexString);
 
             bool modified = false;
 

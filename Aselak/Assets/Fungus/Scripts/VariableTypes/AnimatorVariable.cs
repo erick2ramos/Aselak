@@ -1,4 +1,4 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
@@ -12,7 +12,8 @@ namespace Fungus
     [AddComponentMenu("")]
     [System.Serializable]
     public class AnimatorVariable : VariableBase<Animator>
-    {}
+    {
+    }
 
     /// <summary>
     /// Container for an Animator variable reference or constant value.
@@ -48,7 +49,7 @@ namespace Fungus
         {
             if (animatorRef == null)
             {
-                return animatorVal.ToString();
+                return animatorVal != null ? animatorVal.ToString() : "Null";
             }
             else
             {

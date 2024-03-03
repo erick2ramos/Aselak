@@ -1,146 +1,33 @@
-// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Fungus
 {
     /// <summary>
-    /// Mathematical operations that can be performed on variables.
-    /// </summary>
-    public enum SetOperator
-    {
-        /// <summary> = operator. </summary>
-        Assign,
-        /// <summary> =! operator. </summary>
-        Negate,
-        /// <summary> += operator. </summary>
-        Add,
-        /// <summary> -= operator. </summary>
-        Subtract,
-        /// <summary> *= operator. </summary>
-        Multiply,
-        /// <summary> /= operator. </summary>
-        Divide
-    }
-
-    /// <summary>
     /// Sets a Boolean, Integer, Float or String variable to a new value using a simple arithmetic operation. The value can be a constant or reference another variable of the same type.
     /// </summary>
-    [CommandInfo("Variable", 
-                 "Set Variable", 
+    [CommandInfo("Variable",
+                 "Set Variable",
                  "Sets a Boolean, Integer, Float or String variable to a new value using a simple arithmetic operation. The value can be a constant or reference another variable of the same type.")]
     [AddComponentMenu("")]
-    public class SetVariable : Command 
+    public class SetVariable : Command, ISerializationCallbackReceiver
     {
-        [Tooltip("The variable whos value will be set")]
-        [VariableProperty(typeof(BooleanVariable),
-                          typeof(IntegerVariable), 
-                          typeof(FloatVariable), 
-                          typeof(StringVariable))]
-        [SerializeField] protected Variable variable;
-
+        [SerializeField] protected AnyVariableAndDataPair anyVar = new AnyVariableAndDataPair();
+        
         [Tooltip("The type of math operation to be performed")]
         [SerializeField] protected SetOperator setOperator;
-
-        [Tooltip("Boolean value to set with")]
-        [SerializeField] protected BooleanData booleanData;
-
-        [Tooltip("Integer value to set with")]
-        [SerializeField] protected IntegerData integerData;
-
-        [Tooltip("Float value to set with")]
-        [SerializeField] protected FloatData floatData;
-
-        [Tooltip("String value to set with")]
-        [SerializeField] protected StringDataMulti stringData;
-
+               
         protected virtual void DoSetOperation()
         {
-            if (variable == null)
+            if (anyVar.variable == null)
             {
                 return;
             }
 
-            if (variable.GetType() == typeof(BooleanVariable))
-            {
-                BooleanVariable lhs = (variable as BooleanVariable);
-                bool rhs = booleanData.Value;
-
-                switch (setOperator)
-                {
-                    default:
-                    case SetOperator.Assign:
-                        lhs.Value = rhs;
-                        break;
-                    case SetOperator.Negate:
-                        lhs.Value = !rhs;
-                        break;
-                }
-            }
-            else if (variable.GetType() == typeof(IntegerVariable))
-            {
-                IntegerVariable lhs = (variable as IntegerVariable);
-                int rhs = integerData.Value;
-
-                switch (setOperator)
-                {
-                    default:
-                    case SetOperator.Assign:
-                        lhs.Value = rhs;
-                        break;
-                    case SetOperator.Add:
-                        lhs.Value += rhs;
-                        break;
-                    case SetOperator.Subtract:
-                        lhs.Value -= rhs;
-                        break;
-                    case SetOperator.Multiply:
-                        lhs.Value *= rhs;
-                        break;
-                    case SetOperator.Divide:
-                        lhs.Value /= rhs;
-                        break;
-                }
-            }
-            else if (variable.GetType() == typeof(FloatVariable))
-            {
-                FloatVariable lhs = (variable as FloatVariable);
-                float rhs = floatData.Value;
-
-                switch (setOperator)
-                {
-                    default:
-                    case SetOperator.Assign:
-                        lhs.Value = rhs;
-                        break;
-                    case SetOperator.Add:
-                        lhs.Value += rhs;
-                        break;
-                    case SetOperator.Subtract:
-                        lhs.Value -= rhs;
-                        break;
-                    case SetOperator.Multiply:
-                        lhs.Value *= rhs;
-                        break;
-                    case SetOperator.Divide:
-                        lhs.Value /= rhs;
-                        break;
-                }
-            }
-            else if (variable.GetType() == typeof(StringVariable))
-            {
-                StringVariable lhs = (variable as StringVariable);
-                string rhs = stringData.Value;
-
-                switch (setOperator)
-                {
-                    default:
-                    case SetOperator.Assign:
-                        lhs.Value = rhs;
-                        break;
-                }
-            }
+            anyVar.SetOp(setOperator);
         }
 
         #region Public members
@@ -159,59 +46,22 @@ namespace Fungus
 
         public override string GetSummary()
         {
-            if (variable == null)
+            if (anyVar.variable == null)
             {
                 return "Error: Variable not selected";
             }
 
-            string description = variable.Key;
+            string description = anyVar.variable.Key;
+            description += " " + VariableUtil.GetSetOperatorDescription(setOperator) + " ";
+            description += anyVar.GetDataDescription();
 
-            switch (setOperator)
-            {
-            default:
-            case SetOperator.Assign:
-                description += " = ";
-                break;
-            case SetOperator.Negate:
-                description += " =! ";
-                break;
-            case SetOperator.Add:
-                description += " += ";
-                break;
-            case SetOperator.Subtract:
-                description += " -= ";
-                break;
-            case SetOperator.Multiply:
-                description += " *= ";
-                break;
-            case SetOperator.Divide:
-                description += " /= ";
-                break;
-            }
-
-            if (variable.GetType() == typeof(BooleanVariable))
-            {
-                description += booleanData.GetDescription();
-            }
-            else if (variable.GetType() == typeof(IntegerVariable))
-            {
-                description += integerData.GetDescription();
-            }
-            else if (variable.GetType() == typeof(FloatVariable))
-            {
-                description += floatData.GetDescription();
-            }
-            else if (variable.GetType() == typeof(StringVariable))
-            {
-                description += stringData.GetDescription();
-            }
 
             return description;
         }
 
         public override bool HasReference(Variable variable)
         {
-            return (variable == this.variable);
+            return anyVar.HasReference(variable);
         }
 
         public override Color GetButtonColor()
@@ -219,6 +69,177 @@ namespace Fungus
             return new Color32(253, 253, 150, 255);
         }
 
+        #endregion
+
+
+
+        #region Editor caches
+#if UNITY_EDITOR
+        protected override void RefreshVariableCache()
+        {
+            base.RefreshVariableCache();
+
+            if(anyVar != null)
+                anyVar.RefreshVariableCacheHelper(GetFlowchart(), ref referencedVariables);
+        }
+#endif
+        #endregion Editor caches
+
+        #region backwards compat
+
+
+        [Tooltip("Variable to use in expression")]
+        [VariableProperty(AllVariableTypes.VariableAny.Any)]
+        [SerializeField] protected Variable variable;
+
+        [Tooltip("Boolean value to compare against")]
+        [SerializeField] protected BooleanData booleanData;
+
+        [Tooltip("Integer value to compare against")]
+        [SerializeField] protected IntegerData integerData;
+
+        [Tooltip("Float value to compare against")]
+        [SerializeField] protected FloatData floatData;
+
+        [Tooltip("String value to compare against")]
+        [SerializeField] protected StringDataMulti stringData;
+
+        [Tooltip("Animator value to compare against")]
+        [SerializeField] protected AnimatorData animatorData;
+
+        [Tooltip("AudioSource value to compare against")]
+        [SerializeField] protected AudioSourceData audioSourceData;
+
+        [Tooltip("Color value to compare against")]
+        [SerializeField] protected ColorData colorData;
+
+        [Tooltip("GameObject value to compare against")]
+        [SerializeField] protected GameObjectData gameObjectData;
+
+        [Tooltip("Material value to compare against")]
+        [SerializeField] protected MaterialData materialData;
+
+        [Tooltip("Object value to compare against")]
+        [SerializeField] protected ObjectData objectData;
+
+        [Tooltip("Rigidbody2D value to compare against")]
+        [SerializeField] protected Rigidbody2DData rigidbody2DData;
+
+        [Tooltip("Sprite value to compare against")]
+        [SerializeField] protected SpriteData spriteData;
+
+        [Tooltip("Texture value to compare against")]
+        [SerializeField] protected TextureData textureData;
+
+        [Tooltip("Transform value to compare against")]
+        [SerializeField] protected TransformData transformData;
+
+        [Tooltip("Vector2 value to compare against")]
+        [SerializeField] protected Vector2Data vector2Data;
+
+        [Tooltip("Vector3 value to compare against")]
+        [SerializeField] protected Vector3Data vector3Data;
+
+        public void OnBeforeSerialize()
+        {
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        {
+            if (variable == null)
+            {
+                return;
+            }
+            else
+            {
+                anyVar.variable = variable;
+            }
+
+            if (variable.GetType() == typeof(BooleanVariable) && !booleanData.Equals(new BooleanData()))
+            {
+                anyVar.data.booleanData = booleanData;
+                booleanData = new BooleanData();
+            }
+            else if (variable.GetType() == typeof(IntegerVariable) && !integerData.Equals(new IntegerData()))
+            {
+                anyVar.data.integerData = integerData;
+                integerData = new IntegerData();
+            }
+            else if (variable.GetType() == typeof(FloatVariable) && !floatData.Equals(new FloatData()))
+            {
+                anyVar.data.floatData = floatData;
+                floatData = new FloatData();
+            }
+            else if (variable.GetType() == typeof(StringVariable) && !stringData.Equals(new StringDataMulti()))
+            {
+                anyVar.data.stringData.stringRef = stringData.stringRef;
+                anyVar.data.stringData.stringVal = stringData.stringVal;
+                stringData = new StringDataMulti();
+            }
+            else if (variable.GetType() == typeof(AnimatorVariable) && !animatorData.Equals(new AnimatorData()))
+            {
+                anyVar.data.animatorData = animatorData;
+                animatorData = new AnimatorData();
+            }
+            else if (variable.GetType() == typeof(AudioSourceVariable) && !audioSourceData.Equals(new AudioSourceData()))
+            {
+                anyVar.data.audioSourceData = audioSourceData;
+                audioSourceData = new AudioSourceData();
+            }
+            else if (variable.GetType() == typeof(ColorVariable) && !colorData.Equals(new ColorData()))
+            {
+                anyVar.data.colorData = colorData;
+                colorData = new ColorData();
+            }
+            else if (variable.GetType() == typeof(GameObjectVariable) && !gameObjectData.Equals(new GameObjectData()))
+            {
+                anyVar.data.gameObjectData = gameObjectData;
+                gameObjectData = new GameObjectData();
+            }
+            else if (variable.GetType() == typeof(MaterialVariable) && !materialData.Equals(new MaterialData()))
+            {
+                anyVar.data.materialData = materialData;
+                materialData = new MaterialData();
+            }
+            else if (variable.GetType() == typeof(ObjectVariable) && !objectData.Equals(new ObjectData()))
+            {
+                anyVar.data.objectData = objectData;
+                objectData = new ObjectData();
+            }
+            else if (variable.GetType() == typeof(Rigidbody2DVariable) && !rigidbody2DData.Equals(new Rigidbody2DData()))
+            {
+                anyVar.data.rigidbody2DData = rigidbody2DData;
+                rigidbody2DData = new Rigidbody2DData();
+            }
+            else if (variable.GetType() == typeof(SpriteVariable) && !spriteData.Equals(new SpriteData()))
+            {
+                anyVar.data.spriteData = spriteData;
+                spriteData = new SpriteData();
+            }
+            else if (variable.GetType() == typeof(TextureVariable) && !textureData.Equals(new TextureData()))
+            {
+                anyVar.data.textureData = textureData;
+                textureData = new TextureData();
+            }
+            else if (variable.GetType() == typeof(TransformVariable) && !transformData.Equals(new TransformData()))
+            {
+                anyVar.data.transformData = transformData;
+                transformData = new TransformData();
+            }
+            else if (variable.GetType() == typeof(Vector2Variable) && !vector2Data.Equals(new Vector2Data()))
+            {
+                anyVar.data.vector2Data = vector2Data;
+                vector2Data = new Vector2Data();
+            }
+            else if (variable.GetType() == typeof(Vector3Variable) && !vector3Data.Equals(new Vector3Data()))
+            {
+                anyVar.data.vector3Data = vector3Data;
+                vector3Data = new Vector3Data();
+            }
+
+            //now converted to new AnyVar storage, remove the legacy.
+            variable = null;
+        }
         #endregion
     }
 }

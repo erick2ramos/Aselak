@@ -1,4 +1,4 @@
-﻿// This code is part of the Fungus library (http://fungusgames.com) maintained by Chris Gregan (http://twitter.com/gofungus).
+﻿// This code is part of the Fungus library (https://github.com/snozbot/fungus)
 // It is released for free under the MIT open source license (https://github.com/snozbot/fungus/blob/master/LICENSE)
 
 #if UNITY_5_3_OR_NEWER
@@ -43,7 +43,7 @@ namespace Fungus
 
         [Tooltip("The button which fast forwards the save history to the next save point.")]
         [SerializeField] protected Button forwardButton;
-
+        
         [Tooltip("The button which restarts the game.")]
         [SerializeField] protected Button restartButton;
 
@@ -58,6 +58,8 @@ namespace Fungus
 
         protected static SaveMenu instance;
 
+        protected static bool hasLoadedOnStart = false;
+
         protected virtual void Awake()
         {
             // Only one instance of SaveMenu may exist
@@ -69,7 +71,14 @@ namespace Fungus
 
             instance = this;
 
-            GameObject.DontDestroyOnLoad(this);
+            if (transform.parent == null)
+            {
+                GameObject.DontDestroyOnLoad(this);
+            }
+            else
+            {
+                Debug.LogError("Save Menu cannot be preserved across scene loads if it is a child of another GameObject.");
+            }
 
             clickAudioSource = GetComponent<AudioSource>();
         }
@@ -89,8 +98,10 @@ namespace Fungus
                 saveManager.StartScene = SceneManager.GetActiveScene().name;
             }
 
-            if (loadOnStart)
+            if (loadOnStart && !hasLoadedOnStart)
             {
+                hasLoadedOnStart = true;
+
                 if (saveManager.SaveDataExists(saveDataKey))
                 {
                     saveManager.Load(saveDataKey);
@@ -117,21 +128,25 @@ namespace Fungus
                 {
                     // Don't allow saving unless there's at least one save point in the history,
                     // This avoids the case where you could try to load a save data with 0 save points.
-                    saveButton.interactable = saveManager.NumSavePoints > 0;
+                    saveButton.interactable = saveManager.NumSavePoints > 0 && saveMenuActive;
                 }
                 if (loadButton != null)
                 {
-                    loadButton.interactable = saveManager.SaveDataExists(saveDataKey);
+                    loadButton.interactable = saveManager.SaveDataExists(saveDataKey) && saveMenuActive;
                 }
             }
 
+            if (restartButton != null)
+            {
+                restartButton.interactable = saveMenuActive;
+            }
             if (rewindButton != null)
             {
-                rewindButton.interactable = saveManager.NumSavePoints > 0;
+                rewindButton.interactable = saveManager.NumSavePoints > 0 && saveMenuActive;
             }
             if (forwardButton != null)
             {
-                forwardButton.interactable = saveManager.NumRewoundSavePoints > 0;
+                forwardButton.interactable = saveManager.NumRewoundSavePoints > 0 && saveMenuActive;
             }
 
             if (debugView.enabled)
@@ -142,6 +157,7 @@ namespace Fungus
                     debugText.text = saveManager.GetDebugInfo();
                 }
             }
+
         }
 
         protected virtual void OnEnable()
@@ -195,7 +211,9 @@ namespace Fungus
             if (saveMenuActive)
             {
                 // Switch menu off
-                LeanTween.value(saveMenuGroup.gameObject, saveMenuGroup.alpha, 0f, 0.5f).setOnUpdate( (t) => { 
+                LeanTween.value(saveMenuGroup.gameObject, saveMenuGroup.alpha, 0f, 0.2f)
+                    .setEase(LeanTweenType.easeOutQuint)
+                    .setOnUpdate( (t) => {
                     saveMenuGroup.alpha = t;
                 }).setOnComplete( () => {
                     saveMenuGroup.alpha = 0f;
@@ -204,7 +222,9 @@ namespace Fungus
             else
             {
                 // Switch menu on
-                LeanTween.value(saveMenuGroup.gameObject, saveMenuGroup.alpha, 1f, 0.5f).setOnUpdate( (t) => { 
+                LeanTween.value(saveMenuGroup.gameObject, saveMenuGroup.alpha, 1f, 0.2f)
+                    .setEase(LeanTweenType.easeOutQuint)
+                    .setOnUpdate( (t) => {
                     saveMenuGroup.alpha = t;
                 }).setOnComplete( () => {
                     saveMenuGroup.alpha = 1f;
@@ -240,6 +260,7 @@ namespace Fungus
                 PlayClickSound();
                 saveManager.Load(saveDataKey);
             }
+
         }
 
         /// <summary>
@@ -254,6 +275,7 @@ namespace Fungus
             {
                 saveManager.Rewind();
             }
+
         }
 
         /// <summary>
@@ -276,7 +298,6 @@ namespace Fungus
         public virtual void Restart()
         {
             var saveManager = FungusManager.Instance.SaveManager;
-
             if (string.IsNullOrEmpty(saveManager.StartScene))
             {
                 Debug.LogError("No start scene specified");
@@ -287,11 +308,12 @@ namespace Fungus
 
             // Reset the Save History for a new game
             saveManager.ClearHistory();
+
             if (restartDeletesSave)
             {
-                saveManager.Delete(saveDataKey);
+                SaveManager.Delete(saveDataKey);
             }
-
+            SaveManagerSignals.DoSaveReset();
             SceneManager.LoadScene(saveManager.StartScene);
         }
 
