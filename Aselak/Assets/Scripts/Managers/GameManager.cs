@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour {
     private GameObject _pauseScreen;
 
     // Recovery Attributes
-    public DateTime recoverTimer;
+    public DateTime recoverTimer = DateTime.Now;
     private int recoverCooldown = 30;
     public bool playerDied;
     public bool adViewed;

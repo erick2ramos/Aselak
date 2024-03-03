@@ -71,7 +71,17 @@ public class DataManager : MonoBehaviour {
             p_Data = (PersistentData)bf.Deserialize(file);
             GameManager.instance.playerScore = p_Data.playerScore;
             GameManager.instance.playerLives = p_Data.shipLives;
-            GameManager.instance.recoverTimer = DateTime.Parse(p_Data.cooldownLeft);
+            var cooldownLeftDateTime = DateTime.Parse(p_Data.cooldownLeft);
+            try
+            {
+                cooldownLeftDateTime.Subtract(TimeSpan.FromMinutes(30));
+            } 
+            catch (System.Exception ex)
+            {
+                cooldownLeftDateTime = DateTime.Now;
+            }
+            
+            GameManager.instance.recoverTimer = cooldownLeftDateTime;
             GameManager.instance.suspendTimestamp = DateTime.Parse(p_Data.pauseDate);
             LevelManager._instance.SetActiveLevels(p_Data.playerScore);
             file.Close();
