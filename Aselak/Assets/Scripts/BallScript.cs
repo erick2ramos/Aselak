@@ -145,7 +145,7 @@ public class BallScript : MonoBehaviour {
 
     void Update () {
         // Maintain the models orientation to the velocity's direction 
-        Vector3 velDir = _rb.velocity.normalized;
+        Vector3 velDir = _rb.linearVelocity.normalized;
         if (velDir.magnitude > 0)
         {
             float speed = 3f * Time.deltaTime;
@@ -170,7 +170,7 @@ public class BallScript : MonoBehaviour {
 
     void WriteDeltaV()
     {
-        _deltaVTxt.GetComponent<Text>().text = "delta-V: " + (_rb.velocity.magnitude).ToString("0.000") + " m/s";
+        _deltaVTxt.GetComponent<Text>().text = "delta-V: " + (_rb.linearVelocity.magnitude).ToString("0.000") + " m/s";
     }
 
     void CancelInput()
@@ -187,7 +187,7 @@ public class BallScript : MonoBehaviour {
     {
         // Change ship mode to nopower
         SetMode(ShipMode.Launch);
-        _rb.velocity = pInput * pBurst;
+        _rb.linearVelocity = pInput * pBurst;
 
         GameManager.instance.StoreLaunch(pInput, pBurst);
         StartEngine();
@@ -204,7 +204,7 @@ public class BallScript : MonoBehaviour {
     // Allows the ship to make another launch
     public void Refuel()
     {
-        _rb.velocity = Vector3.zero;
+        _rb.linearVelocity = Vector3.zero;
         SetMode(ShipMode.Exploration);
         kickstart = false;
     }
@@ -226,9 +226,9 @@ public class BallScript : MonoBehaviour {
     {
         // Programatically animate the ship to enter the goal vortex
         Vector3 deltaPos = - transform.position + other.transform.position;
-        Vector3 mainVel = _rb.velocity;
-        _rb.velocity = (mainVel + deltaPos).normalized * mainVel.magnitude;
-        _rb.velocity = Vector3.Lerp(_rb.velocity, Vector3.zero, 0.04f);
+        Vector3 mainVel = _rb.linearVelocity;
+        _rb.linearVelocity = (mainVel + deltaPos).normalized * mainVel.magnitude;
+        _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, Vector3.zero, 0.04f);
 
         // Set ship to look at center of goal
         Quaternion deltaRot = new Quaternion();

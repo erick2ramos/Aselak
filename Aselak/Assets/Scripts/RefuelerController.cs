@@ -33,7 +33,7 @@ public class RefuelerController : MonoBehaviour {
     {
         BallScript bs = ship.GetComponent<BallScript>();
         Rigidbody rb = bs.GetComponent<Rigidbody>();
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
         StartCoroutine(Dock(ship, () =>
         {
             bs.Refuel();

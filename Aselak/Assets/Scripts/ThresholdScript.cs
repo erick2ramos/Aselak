@@ -46,8 +46,8 @@ public class ThresholdScript : MonoBehaviour {
 			    Vector3 diffDir = diff.normalized;
 			    float force = (gravity) / (diff.sqrMagnitude);
                 
-                Debug.DrawLine(other.transform.position, other.GetComponent<Rigidbody>().velocity + other.transform.position, Color.green);
-                other.GetComponent<Rigidbody>().velocity += (diffDir * force / 50f);
+                Debug.DrawLine(other.transform.position, other.GetComponent<Rigidbody>().linearVelocity + other.transform.position, Color.green);
+                other.GetComponent<Rigidbody>().linearVelocity += (diffDir * force / 50f);
                 Debug.DrawLine(other.transform.position, (diff * force / 50f) + other.transform.position, Color.red);
             }
 		}

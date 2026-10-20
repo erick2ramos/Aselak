@@ -13,7 +13,7 @@ public class AsteroidScript : MonoBehaviour {
 	// Update is called once per frame
 	void Awake () {
         rb = GetComponent<Rigidbody>();
-        rb.velocity = (startingDirection.normalized * speed);
+        rb.linearVelocity = (startingDirection.normalized * speed);
         eulerRotations = Random.rotation;
 	}
 

@@ -44,6 +44,6 @@ public class SpawnerController : MonoBehaviour {
         go.transform.SetParent(holder.transform);
         Rigidbody rb = go.GetComponent<Rigidbody>();
         if(rb != null)
-            rb.velocity = spawnDirection * spawnVelocity;
+            rb.linearVelocity = spawnDirection * spawnVelocity;
     }
 }
